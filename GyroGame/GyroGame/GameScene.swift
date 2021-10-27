@@ -24,13 +24,49 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     //Player
     var player: SKNode!
     
-    required init?(coder aDecoder: NSCoder) {
-        super.init(coder: aDecoder)
+    func createPlayer() -> SKNode {
+        let playerNode = SKNode()
+        playerNode.position = CGPoint(x: self.size.width / 2, y: self.size.height)
+        
+        let sprite = SKSpriteNode(imageNamed: "bulogo")
+        sprite.setScale(0.15)
+        playerNode.addChild(sprite)
+        
+        playerNode.physicsBody = SKPhysicsBody(circleOfRadius: sprite.size.width / 2)
+        playerNode.physicsBody?.isDynamic = true
+        playerNode.physicsBody?.allowsRotation = true
+        playerNode.physicsBody?.restitution = 1.0
+        playerNode.physicsBody?.friction = 0.0
+        playerNode.physicsBody?.angularDamping = 0.0
+        playerNode.physicsBody?.linearDamping = 0.0
+        
+        return playerNode
     }
     
-    override init(size: CGSize) {
-        super.init(size: size)
+    func createPallet() -> SKNode {
+        let palletNode = SKNode()
+        palletNode.position = CGPoint(x: self.size.width / 2, y: 80.0)
+        
+        let sprite = SKSpriteNode(imageNamed: "pallet")
+        sprite.setScale(0.20)
+        palletNode.addChild(sprite)
+        
+        palletNode.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 15.0, height: 8.0))
+        palletNode.physicsBody?.isDynamic = false
+        palletNode.physicsBody?.allowsRotation = false
+        palletNode.physicsBody?.restitution = 1.0
+        palletNode.physicsBody?.friction = 0.0
+        palletNode.physicsBody?.angularDamping = 0.0
+        palletNode.physicsBody?.linearDamping = 0.0
+        
+        return palletNode
+    }
+    
+    override func didMove(to view: SKView) {
         backgroundColor = .white
+        
+        //Add gravity
+        physicsWorld.gravity = CGVector(dx: 0.0, dy: -2.0)
         
         scaleFactor = self.size.width / 320.0
         
@@ -41,21 +77,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         //Add the player
         player = createPlayer()
         foregroundNode.addChild(player)
-    }
-    
-    func createPlayer() -> SKNode {
-        let playerNode = SKNode()
-        playerNode.position = CGPoint(x: self.size.width / 2, y: 80.0)
         
-        let sprite = SKSpriteNode(imageNamed: "bulogo")
-        sprite.setScale(0.10)
-        playerNode.addChild(sprite)
-        
-        return playerNode
-    }
-    
-    override func didMove(to view: SKView) {
-        
+        //Add the pallet
+        foregroundNode.addChild(createPallet())
 
         if motionManager.isAccelerometerAvailable {
             // 2
@@ -82,23 +106,4 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             //sprite.run(actionY)
     }
     
-}
-
-//Extension to the SpriteKit Physics body class to make ideal objects that have no friction
-// or drag, and don't interact with the environment but can collide with other objects.
-extension SKPhysicsBody {
-    func ideal() -> SKPhysicsBody {
-        self.friction = 0
-        self.linearDamping = 0
-        self.angularDamping = 0
-        self.restitution = 0
-        return self
-    }
-    
-    func manualMovement() -> SKPhysicsBody {
-        self.isDynamic = false
-        self.allowsRotation = false
-        self.affectedByGravity = false
-        return self
-    }
 }
